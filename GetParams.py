@@ -20,6 +20,10 @@ def str2list(v):
 def get_args(*args):
     parser = argparse.ArgumentParser(description='')
 
+    # sparse
+    parser.add_argument('--sparse', default='false', type=str2bool, help='')
+    parser.add_argument('--sparse_threshold', default=1e-4, type=float, help='threshold for sparsity')
+    
     # general parameters
     parser.add_argument('--cuda', default='true', type=str2bool, help='')
     parser.add_argument('--seed', default=1, type=int, help='')

@@ -100,6 +100,20 @@ def train(args, train_loader, test_loader, val_loader, model):
         # else:
         train_error, train_loss, output = epoch_ce(args, train_loader, model, epoch, args.device, optimizer)
 
+        if args.sparse:
+            # set all weights to zero if they are below threshold
+            # Count number of weights below threshold
+            num_zero = 0
+            total_params = 0
+            for group in optimizer.param_groups:
+                for p in group['params']:
+                    if p is not None:
+                        mask = torch.abs(p.data) < args.sparse_threshold
+                        p.data[mask] = 0.0
+                        p.grad.data[mask] = 0.0
+                        num_zero += mask.sum().item()
+                        total_params += p.numel()
+
         if epoch % args.train_evaluate_rate == 0:
             test_error, test_loss, _ = epoch_ce(args, test_loader, model, args.device, None, None)
             if val_loader is not None:
@@ -114,6 +128,13 @@ def train(args, train_loader, test_loader, val_loader, model):
                 if val_loader is not None:
                     wandb.log({'validation loss': validation_loss, 'validation error': validation_error})
                 wandb.log({'test loss': test_loss, 'test error': test_error})
+            print(f'Number of weights below threshold: {num_zero}. Fraction: {num_zero / total_params}')
+            
+            
+
+
+                    
+                    
 
         if np.isnan(train_loss):
             raise ValueError('Optimizer diverged')
