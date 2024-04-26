@@ -78,7 +78,7 @@ def epoch_ce(args, dataloader, model, epoch, device, opt=None):
 
 
 def train(args, train_loader, test_loader, val_loader, model):
-    optimizer = torch.optim.SGD(model.parameters(), lr=args.train_lr)
+    optimizer = torch.optim.SGD(model.parameters(), lr=args.train_lr, momentum=0.9, weight_decay=1e-3)
     print('Model:')
     print(model)
 
